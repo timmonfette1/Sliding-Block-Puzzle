@@ -10,13 +10,21 @@ http://www.novelgames.com/en/sliding/
 
 AI Algorithms
 --------
-This code uses the following algorithms:
+This code supports the use of the following algorithms:
 
   - Random Walk
-  - Breadth First Search (coming soon)
-  - Depth First Search (coming soon)
-  - Iterative Deepening Search (coming soon)
+  - Breadth First Search
+  - Depth First Search
+  - Iterative Deepening Search
+  - A* with Manhattan Distance
+  - A* with a modified Manhattan Distance
+
+The modified Manhattan Distance calculates the Manhattan Distance then<br />
+adds the number of adjacent blocks to the master block.  This heuristic is<br />
+both dominating of pure Manhattan Distance and is admissible.
 
 Usage
 --------
-Makefile coming soon
+Update for Makefile instructions coming soon.
+
+More updates for adding customizable run time parameters for choosing an algorithm.

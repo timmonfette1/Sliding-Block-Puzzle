@@ -1,17 +1,15 @@
-/* Tim Monfette (tjm354)
- * Artificial Intelligence
+/* Sliding Block Puzzle
  *
  * Set of functions for determining
  * and loading a state for the Sliding
  * Block Puzzle
+ *
+ * Code by:
+ * Tim Monfette
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-
 // Piece struct
+// Contains boards for pieces to determine size
 typedef struct Piece {
   int value;
   int topb;
@@ -31,6 +29,27 @@ typedef struct LMoves {
   Move m;
   struct LMoves *next;
 } LMoves;
+
+// Struct for CLOSED list
+typedef struct ClosedList {
+  int** state;
+  struct ClosedList *next;
+} ClosedList;
+
+// Struct for a node in the OPEN list
+typedef struct Open {
+  Move m;
+  int** state;
+  int depth;
+  int heuristic;
+  struct Open *parent;
+} Open;
+
+// Struct for OPEN list
+typedef struct OpenList {
+  Open *o;
+  struct OpenList *next;
+} OpenList;
 
 // height is rows, width is columns
 int width;
@@ -70,8 +89,10 @@ int** loadState(char *path) {
   int lineNum = 1;
   int rowNum = 0;
 
+  // Open file
   f = fopen(path, "r");
   
+  // Read file and populate matrix with data
   while ((read = getline(&line, &len, f)) != -1) {
     if (lineNum == 1) {
       char *wh = strtok(line, ","); 
@@ -108,6 +129,7 @@ int** loadState(char *path) {
 
 // Display a state to the screen
 void displayState(int** state) {
+  printf("%d,%d,\n", width, height);
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
       printf("%d,", state[i][j]);
@@ -120,6 +142,7 @@ void displayState(int** state) {
 int** cloneState(int** state) {
   int** stateClone = createMatrix(height, width);
 
+  // Copy the state to the new matrix
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
       stateClone[i][j] = state[i][j];
@@ -184,17 +207,20 @@ bool compareStates(int** state1, int** state2) {
 }
 
 // Generate a list of possible moves for a given piece
+// Assumes all pieces are square/rectangle shaped
+//   (the sliding block puzzle doesnt have irregular shaped pieces)
 LMoves* generateMoves(int** state, int piece) {
   LMoves *head = NULL;
   bool found = false;
 
+  // Loop until piece is found
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
       if (state[i][j] != piece) {
         continue;
       } else { 
         found = true;
-        Piece p; 
+        Piece p;              // Default all boundries to a 1x1 piece
         p.value = piece;
         p.topb = i;
         p.bottomb = i;
@@ -202,12 +228,12 @@ LMoves* generateMoves(int** state, int piece) {
         p.leftb = j;
 
         int k = 1;
-        while (state[i+k][j] == piece) {
+        while (state[i+k][j] == piece) {   // Adjust bottom boundry
           p.bottomb = p.bottomb + 1;
           k++;
         }
         k = 1;
-        while (state[i][j+k] == piece) {
+        while (state[i][j+k] == piece) {  // Adjust right boundry
           p.rightb = p.rightb + 1;
           k++;
         }
@@ -215,7 +241,7 @@ LMoves* generateMoves(int** state, int piece) {
         bool allowed;
         for (int k = 0; k < 4; k++) {
           switch (k) {
-            case 0:
+            case 0:   // Check if piece can move upwards
               allowed = true;
               for (int x = p.leftb; x <= p.rightb; x++) {
                 if (piece == 2) {
@@ -230,7 +256,7 @@ LMoves* generateMoves(int** state, int piece) {
               }
               if (allowed == true) {
                 LMoves *node = (LMoves*) malloc(sizeof(LMoves));
-                Move m;
+                Move m;     // Build the move if possible
                 m.piece = p;
                 m.direction = 'u';
                 node->m = m;
@@ -238,7 +264,7 @@ LMoves* generateMoves(int** state, int piece) {
                 head = node;
               }
               break;
-            case 1:
+            case 1:   // Check if piece can move downward
               allowed = true;
               for (int x = p.leftb; x <= p.rightb; x++) {
                 if (piece == 2) {
@@ -253,7 +279,7 @@ LMoves* generateMoves(int** state, int piece) {
               }
               if (allowed == true) {
                 LMoves *node = (LMoves*) malloc(sizeof(LMoves));
-                Move m;
+                Move m;     // Build the move if possible
                 m.piece = p;
                 m.direction = 'd';
                 node->m = m;
@@ -261,7 +287,7 @@ LMoves* generateMoves(int** state, int piece) {
                 head = node;
               }
               break;
-            case 2:
+            case 2:   // Check if piece can move to the right
               allowed = true;
               for (int x = p.topb; x <= p.bottomb; x++) {
                 if (piece == 2) {
@@ -276,7 +302,7 @@ LMoves* generateMoves(int** state, int piece) {
               }
               if (allowed == true) {
                 LMoves *node = (LMoves*) malloc(sizeof(LMoves));
-                Move m;
+                Move m;     // Build move if possible
                 m.piece = p;
                 m.direction = 'r';
                 node->m = m;
@@ -284,7 +310,7 @@ LMoves* generateMoves(int** state, int piece) {
                 head = node;
               }
               break;
-            case 3:
+            case 3:   // Check if piece can move to the left
               allowed = true;
               for (int x = p.topb; x <= p.bottomb; x++) {
                 if (piece == 2) {
@@ -299,7 +325,7 @@ LMoves* generateMoves(int** state, int piece) {
               }
               if (allowed == true) {
                 LMoves *node = (LMoves*) malloc(sizeof(LMoves));
-                Move m;
+                Move m;     // Build move if possible
                 m.piece = p;
                 m.direction = 'l';
                 node->m = m;
@@ -312,7 +338,7 @@ LMoves* generateMoves(int** state, int piece) {
       }
       break; 
     }
-    if (found == true) {
+    if (found == true) {    // Break out of inner loop to check next move
       break;
     }
   }
@@ -324,24 +350,24 @@ LMoves* generateMoves(int** state, int piece) {
 LMoves* generateAllMoves(int** state) {
   LMoves* head = NULL; 
   int nextVal = 3;
-  bool checked2 = false;
+  bool checked2 = false;  // Boolean for seeing if we've checked the special piece
 
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
       if ((state[i][j] == 2) && (checked2 == false)) {
-        LMoves* movelist = generateMoves(state, 2);
-        while (movelist != NULL) {
+        LMoves* movelist = generateMoves(state, 2);   // Generate moves for special piece
+        while (movelist != NULL) {  // Add each move to master list
           LMoves* temp = movelist;
           movelist = movelist->next;
           temp->next = head;
           head = temp;
           checked2 = true;
         }
-      } else if (state[i][j] != nextVal) {
+      } else if (state[i][j] != nextVal) {  // Skip until next piece
         continue;
       } else {
-        LMoves* movelist = generateMoves(state, nextVal);
-        while (movelist != NULL) {
+        LMoves* movelist = generateMoves(state, nextVal);   // Generate moves list
+        while (movelist != NULL) {    // Add each move to master list
           LMoves* temp = movelist;
           movelist = movelist->next;
           temp->next = head;
@@ -352,13 +378,14 @@ LMoves* generateAllMoves(int** state) {
     }
   }
   
-  return head;
+  return head;    // Return master list of all moves
 }
 
 // Apply a given move on a given state
 void applyMove(int** state, Move m) {
   Piece p = m.piece;
 
+  // Process the direction - pay attention to boundries of the piece
   switch(m.direction) {
     case 'u': 
       for (int i = p.leftb; i <= p.rightb; i++) {
@@ -396,30 +423,48 @@ int** applyMoveCloning(int** state, Move m) {
 }
 
 // Dispaly a move to meet instructions
-void displayMove(LMoves *node) {
-  switch(node->m.direction) {
+void displayMove(Move m) {
+  switch(m.direction) {
     case 'u':
-      printf("(%d, up)\n", node->m.piece.value);
+      printf("(%d, up)\n", m.piece.value);
       break;
     case 'd':
-      printf("(%d, down)\n", node->m.piece.value);
+      printf("(%d, down)\n", m.piece.value);
       break;
     case 'l':
-      printf("(%d, left)\n", node->m.piece.value);
+      printf("(%d, left)\n", m.piece.value);
       break;
     case 'r':
-      printf("(%d, right)\n", node->m.piece.value);
+      printf("(%d, right)\n", m.piece.value);
       break;
   } 
 }
 
-// Get the length of the list of moves
-int length(LMoves *head) {
+// Get the length of a list
+// Accepts formats of LMoves, OpenList and ClosedList
+int length(const char* format, ...) {
+  va_list ap;
+  va_start(ap, format);
   int length = 0;
-  LMoves *current;
+  
+  if (strcmp(format, "LMoves") == 0) {  // Get length of LMoves
+    LMoves *current;
 
-  for(current = head; current != NULL; current = current->next) {
-    length++;
+    for(current = va_arg(ap, LMoves*); current != NULL; current = current->next) {
+      length++;
+    }
+  } else if (strcmp(format, "OpenList") == 0) {  // Get length of OpenList
+    OpenList *current;
+
+    for(current = va_arg(ap, OpenList*); current != NULL; current = current->next) {
+      length++;
+    }
+  } else if (strcmp(format, "ClosedList") == 0) {  // Get length of ClosedList
+    ClosedList *current;
+
+    for(current = va_arg(ap, ClosedList*); current != NULL; current = current->next) {
+      length++;
+    }
   }
 
   return length;
