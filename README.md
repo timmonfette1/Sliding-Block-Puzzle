@@ -71,5 +71,5 @@ Just make sure to match the format:
   - Any other number is a block
 
 A final note: this project is oftened assigned in AI courses at universities.<br />
-Use of this code and submitting is as your own for a homework assignment subjects you to potential
+Use of this code and submitting it as your own for a homework assignment subjects you to potential
 consequences from your university for plagiarism.
