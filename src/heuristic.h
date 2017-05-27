@@ -180,11 +180,6 @@ void insertLIFO_H(OpenList **oHead, ClosedList *c, LMoves *set, int** state, Ope
 // h = 0 is Manhattan Distance
 // h = 1 is custom heuristic
 void aStar(char* filepath, int h) {
-  // Reset global variables for output
-  nSearched = 0;
-  solLen = 0;
-  execTime = 0.0;
-
   int depth = 0;
 
   // Load and normalize initial state
@@ -236,39 +231,10 @@ void aStar(char* filepath, int h) {
 }
 
 // Run A* with the two heuristics
-void runAStar() {
-  clock_t begin;
-  clock_t end;  
-
-  // Run A* w/ Manhattan and SBP-level1
-  printf("======== SBP-level1.txt MANHATTAN ========\n");
-  begin = clock();
-  aStar("./docs/SBP-level1.txt", 0);
-  end = clock();
-  execTime = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf("nodes explored: %d time taken: %fs length of solution: %d\n\n", nSearched, execTime, solLen);
-
-  // Run A* w/ Custom and SBP-level1
-  printf("======== SBP-level1.txt CUSTOM ========\n");
-  begin = clock();
-  aStar("./docs/SBP-level1.txt", 1);
-  end = clock();
-  execTime = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf("nodes explored: %d time taken: %fs length of solution: %d\n\n", nSearched, execTime, solLen);
-
-  // Run A* w/ Manhattan and SBP-level2
-  printf("======== SBP-level2.txt MANHATTAN ========\n");
-  begin = clock();
-  aStar("./docs/SBP-level2.txt", 0);
-  end = clock();
-  execTime = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf("nodes explored: %d time taken: %fs length of solution: %d\n\n", nSearched, execTime, solLen);
-
-  // Run A* w/ Custom and SBP-level2
-  printf("======== SBP-level2.txt CUSTOM ========\n");
-  begin = clock();
-  aStar("./docs/SBP-level2.txt", 1);
-  end = clock();
-  execTime = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf("nodes explored: %d time taken: %fs length of solution: %d\n\n", nSearched, execTime, solLen);
+void runAStar(char* algorithm, char* filepath) {
+  if (strcmp(algorithm, "md") == 0) {
+    aStar(filepath, 0);
+  } else {
+    aStar(filepath, 1);
+  }
 }

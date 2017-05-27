@@ -10,18 +10,13 @@
 
 #define RAND_RANGE(LO,HI) (LO + rand() / (RAND_MAX / (LO + HI) + 1))
 
-// Global variables for nodes explored, length of solution, and execution time
-int nSearched = 0;
-int solLen = 0;
-double execTime = 0.0;
-
 // Perform a Random Walk for N Steps
-void randomWalk(int N) {
+void randomWalk(char* filepath, int N) {
   int moves = 0;
   srand(time(NULL));  // Seed random number generator
 
   // Load, normalize and display initial state
-  int** state = loadState("./docs/SBP-level0.txt");
+  int** state = loadState(filepath);
   normalizeState(state);
   printf("\n");
   displayState(state);
@@ -57,6 +52,8 @@ void randomWalk(int N) {
     moves++;
     head = generateAllMoves(state);
   }
+
+  nSearched = N;
 }
 
 // Print a chain of moves that led to a solution
@@ -189,11 +186,11 @@ void insertLIFO(OpenList **oHead, ClosedList *c, LMoves *set, int** state, Open 
 }
 
 // Peform a Breadth First Search
-void bfs() {
+void bfs(char* filepath) {
 
   // Load and normalize initial state
   nSearched = 0;
-  int** state = loadState("./docs/SBP-level1.txt");
+  int** state = loadState(filepath);
   normalizeState(state);
 
   if (checkInitial(state) == true) {  // Exit if inital check returns TRUE
@@ -239,11 +236,11 @@ void bfs() {
 }
 
 // Perform a Depth First Search
-void dfs() {
+void dfs(char* filepath) {
 
   // Load and normalize initial state
   nSearched = 0;
-  int** state = loadState("./docs/SBP-level1.txt");
+  int** state = loadState(filepath);
   normalizeState(state);
 
   if (checkInitial(state) == true) {  // Exit if initial checks returns TRUE
@@ -346,11 +343,11 @@ int depthLimited(int** state, int depth) {
 }
 
 // Perform an Iterative Deepening Search
-void ids() {
+void ids(char* filepath) {
 
   // Load and normalize initial state
   nSearched = 0;
-  int** state = loadState("./docs/SBP-level1.txt");
+  int** state = loadState(filepath);
   normalizeState(state);
 
   // Call depth limited search repeatedly
@@ -363,39 +360,14 @@ void ids() {
 }
 
 // Run all of uninformed search algorithms
-void runUninformed() {
-  clock_t begin;
-  clock_t end;
-
-  // Perform Random Walk
-  printf("======== RANDOM WALK ========\n");
-
-  randomWalk(3);
-
-  // Perform Breadth First Search  
-  printf("======== BREADTH FIRST SEARCH ========\n");
-
-  begin = clock();
-  bfs();
-  end = clock();
-  execTime = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf("nodes explored: %d time taken: %fs length of solution: %d\n\n", nSearched, execTime, solLen);
-
-  // Perform Depth First Search
-  printf("======== DEPTH FIRST SEARCH ========\n");
-
-  begin = clock();
-  dfs();
-  end = clock();
-  execTime = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf("nodes explored: %d time taken: %fs length of solution: %d\n\n", nSearched, execTime, solLen);
-
-  // Perform Iterative Deepening Search
-  printf("======== ITERATIVE DEEPENING SEARCH ========\n");
-
-  begin = clock();
-  ids();
-  end = clock();
-  execTime = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf("nodes explored: %d time taken: %fs length of solution: %d\n\n", nSearched, execTime, solLen);
+void runUninformed(char* algorithm, char* filepath) {
+  if (strcmp(algorithm, "rw") == 0) {
+    randomWalk(filepath, 3);
+  } else if (strcmp(algorithm, "bfs") == 0) {
+    bfs(filepath);
+  } else if (strcmp(algorithm, "dfs") == 0) {
+    dfs(filepath);
+  } else {
+    ids(filepath);
+  }
 }

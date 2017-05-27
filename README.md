@@ -26,5 +26,4 @@ both dominating of pure Manhattan Distance and is admissible.
 Usage
 --------
 Update for Makefile instructions coming soon.
-
-More updates for adding customizable run time parameters for choosing an algorithm.
+Need to improve Makefile to allow for proper execution.

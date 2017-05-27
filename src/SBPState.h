@@ -8,6 +8,11 @@
  * Tim Monfette
 */
 
+// Global variables for nodes explored, length of solution, and execution time
+int nSearched = 0;
+int solLen = 0;
+double execTime = 0.0;
+
 // Piece struct
 // Contains boards for pieces to determine size
 typedef struct Piece {
@@ -89,9 +94,15 @@ int** loadState(char *path) {
   int lineNum = 1;
   int rowNum = 0;
 
-  // Open file
-  f = fopen(path, "r");
-  
+  // Check for file existance + read permission
+  if (access(path, F_OK|R_OK) != -1) {
+    f = fopen(path, "r");
+  } else {
+    printf("File %s does not exist or is not readable\n", path);
+    printf("Please check for file existance and permissions\n");
+    exit(1);
+  }
+ 
   // Read file and populate matrix with data
   while ((read = getline(&line, &len, f)) != -1) {
     if (lineNum == 1) {
