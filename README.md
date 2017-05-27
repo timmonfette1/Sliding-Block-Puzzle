@@ -57,3 +57,19 @@ The default is the same as the previous.
 
 `$ make clean`<br />
 Will remove the "run" executable and the "output.txt" file.
+
+Misc
+--------
+You can add a new puzzle to be solved by putting in the "docs" folder.<br />
+Just make sure to match the format:
+
+  - First line is: number of columns, number of rows
+  - 1 represents a wall
+  - -1 represents the goal spaces
+  - 2 represents the master block (the block to get to the goal)
+  - 0 represents a blank space
+  - Any other number is a block
+
+A final note: this project is oftened assigned in AI courses at universities.<br />
+Use of this code and submitting is as your own for a homework assignment subjects you to potential
+consequences from your university for plagiarism.
