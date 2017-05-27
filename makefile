@@ -4,6 +4,9 @@
 # Code by:
 # Tim Monfette
 
+ALG="rw"
+PUZZ="docs/puzzle0.txt"
+
 # default is to compile
 default: compile
 
@@ -18,14 +21,15 @@ compile:
 
 # compiles then executes the code
 execute: compile
-	@./run
+	@./run $(ALG) $(PUZZ)
 
 # compiles then executes the code while writing to output file
 write-file: compile
-	@./run > output.txt
+	@./run $(ALG) $(PUZZ) > output.txt
 
 # clean up the executable
 .PHONY: clean
 
 clean:
-	@rm ./run
+	@rm -f ./run
+	@rm -f ./output.txt
