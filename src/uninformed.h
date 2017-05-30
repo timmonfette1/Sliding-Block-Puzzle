@@ -323,15 +323,18 @@ int depthLimited(int** state, int depth) {
       return 0;
     }
 
-    count = count + 1;
-    if (count == depth) {     // Exit with cutoff
-      return 1;      
+    count = temp->o->depth; + 1;
+    if (count == depth) { 
+      if (length("OpenList", oHead) == 0) {
+        return 1;     // Exit with cutoff if last node at cutoff depth
+      } else {
+        continue;     // If cutoff depth but more nodes left, continue to next node
+      }
     }
 
     // Expand node and add to LIFO Queue
     moveSet = generateAllMoves(state);
     insertLIFO(&oHead, c, moveSet, state, temp->o, count + 1);
-
   }
 
   // Exit with failure
